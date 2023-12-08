@@ -1,0 +1,387 @@
+---
+title: "sim analysis"
+author: "Nobuaki Masaki"
+date: "8/25/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+##### This file is used to analyze the model fit on the simulated data
+
+### Load packages
+library(tidyverse)
+library(ggbeeswarm)
+library(latex2exp)
+library(gridExtra)
+library(resample)
+```
+
+```{r}
+### Load in model fits on simulated data
+res1 <- readRDS("results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.1.rds")
+res2 <- readRDS("results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.2.rds")
+res3 <- readRDS("results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.3.rds")
+res4 <- readRDS("results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.4.rds")
+res5 <- readRDS("results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.5.rds")
+res6 <- readRDS("results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.6.rds")
+res7 <- readRDS("results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.7.rds")
+res8 <- readRDS("results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.8.rds")
+
+res.consist0.01 <- c(res1, res2, res3, res4, res5, res6, res7, res8)
+```
+
+```{r}
+res1 <- readRDS("results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.1.rds")
+res2 <- readRDS("results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.2.rds")
+res3 <- readRDS("results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.3.rds")
+res4 <- readRDS("results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.4.rds")
+res5 <- readRDS("results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.5.rds")
+res6 <- readRDS("results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.6.rds")
+res7 <- readRDS("results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.7.rds")
+res8 <- readRDS("results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.8.rds")
+
+res.consist0.05 <- c(res1, res2, res3, res4, res5, res6, res7, res8)
+```
+
+```{r}
+res1 <- readRDS("results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.1.rds")
+res2 <- readRDS("results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.2.rds")
+res3 <- readRDS("results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.3.rds")
+res4 <- readRDS("results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.4.rds")
+res5 <- readRDS("results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.5.rds")
+res6 <- readRDS("results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.6.rds")
+res7 <- readRDS("results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.7.rds")
+res8 <- readRDS("results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.8.rds")
+res9 <- readRDS("results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.9.rds")
+
+res.consist0.25 <- c(res1, res2, res3, res4, res5, res6, res7, res8, res9)
+```
+
+```{r}
+res1 <- readRDS("results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.1.rds")
+res2 <- readRDS("results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.2.rds")
+res3 <- readRDS("results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.3.rds")
+res4 <- readRDS("results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.4.rds")
+res5 <- readRDS("results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.5.rds")
+res6 <- readRDS("results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.6.rds")
+res7 <- readRDS("results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.7.rds")
+res8 <- readRDS("results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.8.rds")
+res9 <- readRDS("results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.9.rds")
+
+res.consist0.49 <- c(res1, res2, res3, res4, res5, res6, res7, res8, res9)
+```
+
+```{r}
+### Check if all iterations successfully ran. If some iterations returned NA or an error message, we will remove them. 
+res.consist0.01.filt <- list()
+ind = 1
+for (res in res.consist0.01) {
+  if (length(res) == 4) {
+    res.consist0.01.filt[[ind]] = res
+    ind = ind + 1
+  }}
+
+res.consist0.05.filt <- list()
+ind = 1
+for (res in res.consist0.05) {
+  if (length(res) == 4) {
+    res.consist0.05.filt[[ind]] = res
+    ind = ind + 1
+  }}
+
+res.consist0.25.filt <- list()
+ind = 1
+for (res in res.consist0.25) {
+  if (length(res) == 4) {
+    res.consist0.25.filt[[ind]] = res
+    ind = ind + 1
+  }}
+
+res.consist0.49.filt <- list()
+ind = 1
+for (res in res.consist0.49) {
+  if (length(res) == 4) {
+    res.consist0.49.filt[[ind]] = res
+    ind = ind + 1
+  }}
+```
+
+```{r}
+### Returns point estimates from fitting the model with and without deletions to the simulated data
+get_point_est <- function(res.consist.filt) {
+  ### Obtain point estimates for model with deletions
+  point.est <- lapply(res.consist.filt, function(x) {x[[1]][[2]][[1]] %>% exp()}) %>% unlist() %>% matrix(ncol = 7, byrow = TRUE) %>% as.data.frame()
+  point.est$iter <- 1:nrow(point.est)
+  colnames(point.est) <- c("theta01", "theta02", "theta10", "theta12", "theta20", "theta21", "gamma", "iter")
+  point.est.long <- gather(point.est, key = "param.", value = "est.", theta01:gamma) %>% arrange(param., iter)
+  point.est.long$log.est. <- log(point.est.long$est.)
+  
+  point.est.long$param. <- as.factor(point.est.long$param.)
+  point.est.long$param. <- case_when(
+    point.est.long$param. == "theta01" ~ "Theta[I]^{'0,1'}",
+    point.est.long$param. == "theta02" ~ "Theta[I]^{'0,2'}",
+    point.est.long$param. == "theta10" ~ "Theta[I]^{'1,0'}",
+    point.est.long$param. == "theta12" ~ "Theta[I]^{'1,2'}",
+    point.est.long$param. == "theta20" ~ "Theta[I]^{'2,0'}",
+    point.est.long$param. == "theta21" ~ "Theta[I]^{'2,1'}",
+    point.est.long$param. == "gamma" ~ "Gamma[I]")
+  point.est.long$model = "With deletions"
+  point.est.long$truth = rep(c(2e-4, 2e-4, 5e-7, 9e-5, 2e-4, 2e-6, 9e-4), each = nrow(point.est))
+  
+  ### Obtain point estimates for model without deletions
+  point.est.null <- lapply(res.consist.filt, function(x) {x[[1]][[1]][[1]] %>% exp()}) %>% unlist() %>% matrix(ncol = 6, byrow = TRUE) %>% as.data.frame()
+  point.est.null$iter <- 1:nrow(point.est)
+  colnames(point.est.null) <- c("theta01", "theta02", "theta10", "theta12", "theta20", "theta21", "iter")
+  point.est.null.long <- gather(point.est.null, key = "param.", value = "est.", theta01:theta21) %>% arrange(param., iter)
+  point.est.null.long$log.est. <- log(point.est.null.long$est.)
+  
+  point.est.null.long$param. <- as.factor(point.est.null.long$param.)
+  point.est.null.long$param. <- case_when(
+    point.est.null.long$param. == "theta01" ~ "Theta[I]^{'0,1'}",
+    point.est.null.long$param. == "theta02" ~ "Theta[I]^{'0,2'}",
+    point.est.null.long$param. == "theta10" ~ "Theta[I]^{'1,0'}",
+    point.est.null.long$param. == "theta12" ~ "Theta[I]^{'1,2'}",
+    point.est.null.long$param. == "theta20" ~ "Theta[I]^{'2,0'}",
+    point.est.null.long$param. == "theta21" ~ "Theta[I]^{'2,1'}")
+  point.est.null.long$model = "Without deletions"
+  point.est.null.long$truth = rep(c(2e-4, 5e-7, 9e-5, 2e-4, 2e-6, 9e-4), each = nrow(point.est))
+  
+  res <- rbind(point.est.long, point.est.null.long)
+  return(res)}
+
+### Get point estimates for all MAF interval simulations
+point.est.01 <- get_point_est(res.consist0.01.filt)
+point.est.05 <- get_point_est(res.consist0.05.filt)
+point.est.25 <- get_point_est(res.consist0.25.filt)
+point.est.49 <- get_point_est(res.consist0.49.filt)
+
+### Obtain the empirical mean, sd, and bias of the MLE for each parameter
+summary.01 <- point.est.01 %>% group_by(model, param.) %>% summarize(mean.est. = mean(est.), sd.est = sd(est.), truth = mean(truth)) %>% mutate(bias = mean.est. - truth)
+summary.05 <- point.est.05 %>% group_by(model, param.) %>% summarize(mean.est. = mean(est.), sd.est = sd(est.), truth = mean(truth)) %>% mutate(bias = mean.est. - truth)
+summary.25 <- point.est.25 %>% group_by(model, param.) %>% summarize(mean.est. = mean(est.), sd.est = sd(est.), truth = mean(truth)) %>% mutate(bias = mean.est. - truth)
+summary.49 <- point.est.49 %>% group_by(model, param.) %>% summarize(mean.est. = mean(est.), sd.est = sd(est.), truth = mean(truth)) %>% mutate(bias = mean.est. - truth)
+
+### Display final results
+summary.01.wd <- summary.01 %>% filter(model == "With deletions")
+summary.01.wod <- summary.01 %>% filter(model == "Without deletions")
+summary.05.wd <- summary.05 %>% filter(model == "With deletions")
+summary.05.wod <- summary.05 %>% filter(model == "Without deletions")
+summary.25.wd <- summary.25 %>% filter(model == "With deletions")
+summary.25.wod <- summary.25 %>% filter(model == "Without deletions")
+summary.49.wd <- summary.49 %>% filter(model == "With deletions")
+summary.49.wod <- summary.49 %>% filter(model == "Without deletions")
+
+summary.01.wd[c(2,3,4,5,6,7,1),] %>% mutate_if(is.numeric, signif, digits = 3)
+summary.01.wod %>% mutate_if(is.numeric, signif, digits = 3)
+summary.05.wd[c(2,3,4,5,6,7,1),] %>% mutate_if(is.numeric, signif, digits = 3)
+summary.05.wod %>% mutate_if(is.numeric, signif, digits = 3)
+summary.25.wd[c(2,3,4,5,6,7,1),] %>% mutate_if(is.numeric, signif, digits = 3)
+summary.25.wod %>% mutate_if(is.numeric, signif, digits = 3)
+summary.49.wd[c(2,3,4,5,6,7,1),] %>% mutate_if(is.numeric, signif, digits = 3)
+summary.49.wod %>% mutate_if(is.numeric, signif, digits = 3)
+```
+
+```{r}
+### Configure true parameter values for plot
+trueInt <- cbind(c( 
+     "Theta[I]^{'0,1'}", "Theta[I]^{'0,2'}",
+     "Theta[I]^{'1,0'}", "Theta[I]^{'1,2'}",
+     "Theta[I]^{'2,0'}", "Theta[I]^{'2,1'}",
+     "Gamma[I]"), 
+      c(2e-4, 5e-7, 9e-5, 2e-4, 2e-6, 9e-4, 2e-4)) %>% as.data.frame()
+colnames(trueInt) <- c("param.", "Int")
+```
+
+```{r}
+### Figures 3 and 4 in the paper
+p01 <- ggplot(point.est.01, aes(x = model, y = est., color = model)) + geom_beeswarm() +
+  geom_hline(data = trueInt, aes(yintercept = as.numeric(Int)), color = "black") + facet_wrap(~param., scales = "free", labeller = label_parsed) + theme_bw() +
+  geom_hline(data = summary.01 %>% filter(model == "With deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#E41A1C") +
+  geom_hline(data = summary.01 %>% filter(model == "Without deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#377EB8") +
+  theme(text = element_text(size=15), axis.text.x=element_blank(), legend.position = c(0.87, 0.17)) + 
+  scale_color_brewer(palette = "Set1") + labs(x = "Model", y = "Point estimate", caption = "MAF interval: (0.01, 0.015]", color = "Model")
+
+p05 <- ggplot(point.est.05, aes(x = model, y = est., color = model)) + geom_beeswarm() +
+  geom_hline(data = trueInt, aes(yintercept = as.numeric(Int)), color = "black") + facet_wrap(~param., scales = "free", labeller = label_parsed) + theme_bw() +
+  geom_hline(data = summary.05 %>% filter(model == "With deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#E41A1C") +
+  geom_hline(data = summary.05 %>% filter(model == "Without deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#377EB8") +
+  theme(text = element_text(size=15), axis.text.x=element_blank(), legend.position = c(0.87, 0.17)) + 
+  scale_color_brewer(palette = "Set1") + labs(x = "Model", y = "Point estimate", caption = "MAF interval: (0.05, 0.055]", color = "Model")
+
+p25 <- ggplot(point.est.25, aes(x = model, y = est., color = model)) + geom_beeswarm() +
+  geom_hline(data = trueInt, aes(yintercept = as.numeric(Int)), color = "black") + facet_wrap(~param., scales = "free", labeller = label_parsed) + theme_bw() +
+  geom_hline(data = summary.25 %>% filter(model == "With deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#E41A1C") +
+  geom_hline(data = summary.25 %>% filter(model == "Without deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#377EB8") +
+  theme(text = element_text(size=15), axis.text.x=element_blank(), legend.position = c(0.87, 0.17)) + 
+  scale_color_brewer(palette = "Set1") + labs(x = "Model", y = "Point estimate", caption = "MAF interval: (0.25, 0.255]", color = "Model")
+
+p49 <- ggplot(point.est.49, aes(x = model, y = est., color = model)) + geom_beeswarm() +
+  geom_hline(data = trueInt, aes(yintercept = as.numeric(Int)), color = "black") + facet_wrap(~param., scales = "free", labeller = label_parsed) + theme_bw() +
+  geom_hline(data = summary.49 %>% filter(model == "With deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#E41A1C") +
+  geom_hline(data = summary.49 %>% filter(model == "Without deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#377EB8") +
+  theme(text = element_text(size=15), axis.text.x=element_blank(), legend.position = c(0.87, 0.17)) + 
+  scale_color_brewer(palette = "Set1") + labs(x = "Model", y = "Point estimate", caption = "MAF interval: (0.49, 0.495]", color = "Model")
+
+figure3 <- arrangeGrob(p01, p05, nrow=1)
+ggsave(file="fig3.png", figure3, width = 20, height = 10)
+
+figure4 <- arrangeGrob(p25, p49, nrow=1)
+ggsave(file="fig4.png", figure4, width = 20, height = 10)
+```
+
+```{r}
+# SEs.log <- lapply(res.consist0.05.filt, function(x) {x[[2]] %>% apply(MARGIN = 2, sd)}) %>% unlist() %>% matrix(ncol = 13, byrow = TRUE) %>% as.data.frame()
+# SEs.log.null <- SEs.log[,1:6]
+# SEs.log.alt <- SEs.log[,7:13]
+# SEs.log.null$iter <- 1:length(res.consist0.05.filt)
+# SEs.log.alt$iter <- 1:length(res.consist0.05.filt)
+# 
+# colnames(SEs.log.null) <- c(
+#        "Theta[I]^{'0,1'}", "Theta[I]^{'0,2'}",
+#        "Theta[I]^{'1,0'}", "Theta[I]^{'1,2'}",
+#        "Theta[I]^{'2,0'}", "Theta[I]^{'2,1'}", "iter")
+# colnames(SEs.log.alt) <- c(
+#        "Theta[I]^{'0,1'}", "Theta[I]^{'0,2'}",
+#        "Theta[I]^{'1,0'}", "Theta[I]^{'1,2'}",
+#        "Theta[I]^{'2,0'}", "Theta[I]^{'2,1'}", "Gamma[I]", "iter")
+# 
+# SEs.log.null.long <- gather(SEs.log.null, key = "param.", value = "SE", "Theta[I]^{'0,1'}":"Theta[I]^{'2,1'}")
+# SEs.log.alt.long <- gather(SEs.log.alt, key = "param.", value = "SE", "Theta[I]^{'0,1'}":"Gamma[I]")
+# 
+# point.est.null.long <- left_join(point.est.05 %>% filter(model == "Without deletions"), SEs.log.null.long, by = c("iter", "param."))
+# point.est.null.long$upper.log <- exp(point.est.null.long$log.est. + qnorm(0.975)*point.est.null.long$SE)
+# point.est.null.long$lower.log <- exp(point.est.null.long$log.est. - qnorm(0.975)*point.est.null.long$SE)
+# 
+# point.est.long <- left_join(point.est.05 %>% filter(model == "With deletions"), SEs.log.alt.long, by = c("iter", "param."))
+# point.est.long$upper.log <- exp(point.est.long$log.est. + qnorm(0.975)*point.est.long$SE)
+# point.est.long$lower.log <- exp(point.est.long$log.est. - qnorm(0.975)*point.est.long$SE)
+# 
+# point.est.long$capture.log <- with(point.est.long, truth < upper.log & truth > lower.log)
+# point.est.null.long$capture.log <- with(point.est.null.long, truth < upper.log & truth > lower.log)
+```
+
+```{r}
+### Add CIs to the previous point estimates
+add_CIs <- function(res.consist.filt, point.est.long, point.est.null.long) {
+  ### For each iteration, obtain bootstrapped estimates and apply sd along different parameters
+  SEs.log <- lapply(res.consist.filt, function(x) {x[[2]] %>% apply(MARGIN = 2, sd)}) %>% unlist() %>% matrix(ncol = 13, byrow = TRUE) %>% as.data.frame()
+  SEs.log.null <- SEs.log[,1:6]
+  SEs.log.alt <- SEs.log[,7:13]
+  SEs.log.null$iter <- 1:length(res.consist.filt)
+  SEs.log.alt$iter <- 1:length(res.consist.filt)
+  
+  colnames(SEs.log.null) <- c(
+     "Theta[I]^{'0,1'}", "Theta[I]^{'0,2'}",
+     "Theta[I]^{'1,0'}", "Theta[I]^{'1,2'}",
+     "Theta[I]^{'2,0'}", "Theta[I]^{'2,1'}", "iter")
+  colnames(SEs.log.alt) <- c(
+     "Theta[I]^{'0,1'}", "Theta[I]^{'0,2'}",
+     "Theta[I]^{'1,0'}", "Theta[I]^{'1,2'}",
+     "Theta[I]^{'2,0'}", "Theta[I]^{'2,1'}", "Gamma[I]", "iter")
+  
+  ### Convert to long
+  SEs.log.null.long <- gather(SEs.log.null, key = "param.", value = "SE", "Theta[I]^{'0,1'}":"Theta[I]^{'2,1'}")
+  SEs.log.alt.long <- gather(SEs.log.alt, key = "param.", value = "SE", "Theta[I]^{'0,1'}":"Gamma[I]")
+  
+  ### Left join to point estimates and get 95% CIs in the log scale
+  point.est.null.long <- left_join(point.est.null.long, SEs.log.null.long, by = c("iter", "param."))
+  point.est.null.long$upper.log <- exp(point.est.null.long$log.est. + qnorm(0.975)*point.est.null.long$SE)
+  point.est.null.long$lower.log <- exp(point.est.null.long$log.est. - qnorm(0.975)*point.est.null.long$SE)
+  
+  point.est.long <- left_join(point.est.long, SEs.log.alt.long, by = c("iter", "param."))
+  point.est.long$upper.log <- exp(point.est.long$log.est. + qnorm(0.975)*point.est.long$SE)
+  point.est.long$lower.log <- exp(point.est.long$log.est. - qnorm(0.975)*point.est.long$SE)
+  
+  ### Get coverage probabilities
+  point.est.null.long$capture.log <- with(point.est.null.long, truth < upper.log & truth > lower.log)
+  point.est.long$capture.log <- with(point.est.long, truth < upper.log & truth > lower.log)
+  
+  return(list(point.est.long, point.est.null.long))
+}
+
+df.01.CIs <- add_CIs(res.consist0.01.filt, 
+        point.est.01 %>% filter(model == "With deletions"),
+        point.est.01 %>% filter(model == "Without deletions"))
+est.01 <- df.01.CIs[[1]]
+est.01.null <- df.01.CIs[[2]]
+
+df.05.CIs <- add_CIs(res.consist0.05.filt, 
+        point.est.05 %>% filter(model == "With deletions"),
+        point.est.05 %>% filter(model == "Without deletions"))
+est.05 <- df.05.CIs[[1]]
+est.05.null <- df.05.CIs[[2]]
+
+df.25.CIs <- add_CIs(res.consist0.25.filt, 
+        point.est.25 %>% filter(model == "With deletions"),
+        point.est.25 %>% filter(model == "Without deletions"))
+est.25 <- df.25.CIs[[1]]
+est.25.null <- df.25.CIs[[2]]
+
+df.49.CIs <- add_CIs(res.consist0.49.filt, 
+        point.est.49 %>% filter(model == "With deletions"),
+        point.est.49 %>% filter(model == "Without deletions"))
+est.49 <- df.49.CIs[[1]]
+est.49.null <- df.49.CIs[[2]]
+```
+
+```{r}
+### Display results including coverage probabilities
+summary.01.wod <- est.01.null %>% group_by(param.) %>% summarize(coverage = mean(capture.log)) 
+summary.01.wd <- est.01 %>% group_by(param.) %>% summarize(coverage = mean(capture.log))
+
+summary.05.wod <- est.05.null %>% group_by(param.) %>% summarize(coverage = mean(capture.log)) 
+summary.05.wd <- est.05 %>% group_by(param.) %>% summarize(coverage = mean(capture.log))
+
+summary.25.wod <- est.25.null %>% group_by(param.) %>% summarize(coverage = mean(capture.log)) 
+summary.25.wd <- est.25 %>% group_by(param.) %>% summarize(coverage = mean(capture.log))
+
+summary.49.wod <- est.49.null %>% group_by(param.) %>% summarize(coverage = mean(capture.log)) 
+summary.49.wd <- est.49 %>% group_by(param.) %>% summarize(coverage = mean(capture.log))
+
+summary.01.wd[c(2,3,4,5,6,7,1),] %>% mutate_if(is.numeric, signif, digits = 3)
+summary.01.wod %>% mutate_if(is.numeric, signif, digits = 3)
+ 
+summary.05.wd[c(2,3,4,5,6,7,1),] %>% mutate_if(is.numeric, signif, digits = 4)
+summary.05.wod %>% mutate_if(is.numeric, signif, digits = 4)
+
+summary.25.wd[c(2,3,4,5,6,7,1),] %>% mutate_if(is.numeric, signif, digits = 4)
+summary.25.wod %>% mutate_if(is.numeric, signif, digits = 3)
+
+summary.49.wd[c(2,3,4,5,6,7,1),] %>% mutate_if(is.numeric, signif, digits = 4)
+summary.49.wod %>% mutate_if(is.numeric, signif, digits = 4)
+```
+
+```{r}
+# # point.est.long$capture.log <- with(point.est.long, truth < upper.log & truth > lower.log)
+# # point.est.null.long$capture.log <- with(point.est.null.long, truth < upper.log & truth > lower.log)
+# # 
+# ggplot(est.05.null, aes(x = iter, y = est., color = capture.log)) + geom_point(size = 6) + facet_wrap(~param., scales = "free", labeller = label_parsed) + theme_bw() + geom_errorbar(aes(ymax = upper.log, ymin = lower.log)) + geom_hline(data = trueInt, aes(yintercept = as.numeric(Int)), color = "black")
+# ggplot(point.est.long, aes(x = iter, y = est., color = capture.log)) + geom_point() + facet_wrap(~param., scales = "free", labeller = label_parsed) + theme_bw() + geom_errorbar(aes(ymax = upper.log, ymin = lower.log)) + geom_hline(data = trueInt, aes(yintercept = as.numeric(Int)), color = "black")
+# #   
+# # # ggplot(point.est.long, aes(x = iter, y = est., color = capture)) + geom_point() + facet_wrap(~param., scales = "free", labeller = label_parsed) + theme_bw() + geom_errorbar(aes(ymax = upper, ymin = lower))
+# # point.est.null.long
+# 
+# est.05.null %>% filter(param. == "Theta[I]^{'2,1'}" & capture.log == FALSE)
+```
+
+```{r}
+# capture.summary <- point.est.long %>% group_by(param.) %>% summarize(cover.log = mean(capture.log))
+# capture.null.summary <- point.est.null.long %>% group_by(param.) %>% summarize(cover.log = mean(capture.log))
+# capture.summary %>% left_join(capture.null.summary, by = "param.")
+```
+
+```{r}
+# AIC.null <- lapply(res.consist.filt, function(x) {x[[1]][[1]][[2]]}) %>% unlist() 
+# AIC.null <- 2*AIC.null + 12
+# AIC <- lapply(res.consist.filt, function(x) {x[[1]][[2]][[2]]}) %>% unlist()
+# AIC <- 2*AIC + 14
+# AIC.summary <- cbind(AIC, AIC.null) %>% as.data.frame()
+# AIC.summary$iter <- 1:length(res.consist.filt)
+# sum(AIC.summary$AIC < AIC.summary$AIC.null)
+# AIC.gather <- gather(AIC.summary, key = "model", value = "AIC", 1:2)
+# 
+# ggplot(AIC.gather, aes(x = iter, y = AIC, color = model)) + geom_point() + theme_bw()
+```
+
+
+
