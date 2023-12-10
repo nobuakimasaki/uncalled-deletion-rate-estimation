@@ -18,57 +18,59 @@ library(resample)
 
 ```{r}
 ### Load in model fits on simulated data
-res1 <- readRDS("results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.1.rds")
-res2 <- readRDS("results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.2.rds")
-res3 <- readRDS("results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.3.rds")
-res4 <- readRDS("results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.4.rds")
-res5 <- readRDS("results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.5.rds")
-res6 <- readRDS("results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.6.rds")
-res7 <- readRDS("results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.7.rds")
-res8 <- readRDS("results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.8.rds")
+res1 <- readRDS("..\\sim-results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.1.rds")
+res2 <- readRDS("..\\sim-results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.2.rds")
+res3 <- readRDS("..\\sim-results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.3.rds")
+res4 <- readRDS("..\\sim-results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.4.rds")
+res5 <- readRDS("..\\sim-results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.5.rds")
+res6 <- readRDS("..\\sim-results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.6.rds")
+res7 <- readRDS("..\\sim-results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.7.rds")
+res8 <- readRDS("..\\sim-results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.8.rds")
+res9 <- readRDS("..\\sim-results\\maf01\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.01.n_trios.100.n_pos.300000000.iter_optim10000.9.rds")
 
-res.consist0.01 <- c(res1, res2, res3, res4, res5, res6, res7, res8)
+res.consist0.01 <- c(res1, res2, res3, res4, res5, res6, res7, res8, res9)[1:200]
 ```
 
 ```{r}
-res1 <- readRDS("results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.1.rds")
-res2 <- readRDS("results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.2.rds")
-res3 <- readRDS("results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.3.rds")
-res4 <- readRDS("results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.4.rds")
-res5 <- readRDS("results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.5.rds")
-res6 <- readRDS("results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.6.rds")
-res7 <- readRDS("results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.7.rds")
-res8 <- readRDS("results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.8.rds")
+res1 <- readRDS("..\\sim-results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.1.rds")
+res2 <- readRDS("..\\sim-results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.2.rds")
+res3 <- readRDS("..\\sim-results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.3.rds")
+res4 <- readRDS("..\\sim-results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.4.rds")
+res5 <- readRDS("..\\sim-results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.5.rds")
+res6 <- readRDS("..\\sim-results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.6.rds")
+res7 <- readRDS("..\\sim-results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.7.rds")
+res8 <- readRDS("..\\sim-results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.8.rds")
+res9 <- readRDS("..\\sim-results\\maf05\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.05.n_trios.100.n_pos.300000000.iter_optim10000.9.rds")
 
-res.consist0.05 <- c(res1, res2, res3, res4, res5, res6, res7, res8)
+res.consist0.05 <- c(res1, res2, res3, res4, res5, res6, res7, res8, res9)[1:200]
 ```
 
 ```{r}
-res1 <- readRDS("results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.1.rds")
-res2 <- readRDS("results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.2.rds")
-res3 <- readRDS("results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.3.rds")
-res4 <- readRDS("results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.4.rds")
-res5 <- readRDS("results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.5.rds")
-res6 <- readRDS("results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.6.rds")
-res7 <- readRDS("results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.7.rds")
-res8 <- readRDS("results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.8.rds")
-res9 <- readRDS("results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.9.rds")
+res1 <- readRDS("..\\sim-results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.1.rds")
+res2 <- readRDS("..\\sim-results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.2.rds")
+res3 <- readRDS("..\\sim-results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.3.rds")
+res4 <- readRDS("..\\sim-results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.4.rds")
+res5 <- readRDS("..\\sim-results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.5.rds")
+res6 <- readRDS("..\\sim-results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.6.rds")
+res7 <- readRDS("..\\sim-results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.7.rds")
+res8 <- readRDS("..\\sim-results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.8.rds")
+res9 <- readRDS("..\\sim-results\\maf25\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.25.n_trios.100.n_pos.300000000.iter_optim10000.9.rds")
 
-res.consist0.25 <- c(res1, res2, res3, res4, res5, res6, res7, res8, res9)
+res.consist0.25 <- c(res1, res2, res3, res4, res5, res6, res7, res8, res9)[1:200]
 ```
 
 ```{r}
-res1 <- readRDS("results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.1.rds")
-res2 <- readRDS("results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.2.rds")
-res3 <- readRDS("results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.3.rds")
-res4 <- readRDS("results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.4.rds")
-res5 <- readRDS("results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.5.rds")
-res6 <- readRDS("results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.6.rds")
-res7 <- readRDS("results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.7.rds")
-res8 <- readRDS("results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.8.rds")
-res9 <- readRDS("results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.9.rds")
+res1 <- readRDS("..\\sim-results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.1.rds")
+res2 <- readRDS("..\\sim-results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.2.rds")
+res3 <- readRDS("..\\sim-results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.3.rds")
+res4 <- readRDS("..\\sim-results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.4.rds")
+res5 <- readRDS("..\\sim-results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.5.rds")
+res6 <- readRDS("..\\sim-results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.6.rds")
+res7 <- readRDS("..\\sim-results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.7.rds")
+res8 <- readRDS("..\\sim-results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.8.rds")
+res9 <- readRDS("..\\sim-results\\maf49\\res.obsPi.boot.0.0002.0.0000005.0.00009.0.0002.0.000002.0.0009.0.0002.p.0.49.n_trios.100.n_pos.300000000.iter_optim10000.9.rds")
 
-res.consist0.49 <- c(res1, res2, res3, res4, res5, res6, res7, res8, res9)
+res.consist0.49 <- c(res1, res2, res3, res4, res5, res6, res7, res8, res9)[1:200]
 ```
 
 ```{r}
