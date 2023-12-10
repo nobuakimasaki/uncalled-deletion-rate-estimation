@@ -1,0 +1,375 @@
+---
+title: "real_data_analysis"
+author: "Nobuaki Masaki"
+date: "11/16/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+##### File to analyze real data results
+library(dplyr)
+library(ggplot2)
+library(tibble)
+library(tidyr)
+library(ggbeeswarm)
+library(purrr)
+source("deletion_lik_functions.R")
+
+### Returns a matrix of point estimates (one row for each MAF interval)
+get_est <- function(pnt, i) {
+  est.df <- lapply(pnt, function(x) {x[[i]][[1]]}) %>% unlist() %>% exp() %>% matrix(nrow = length(pnt), byrow = TRUE) %>% as.data.frame()
+  return(est.df)
+}
+
+### Returns the estimated ancestral parental genotype frequencies
+get_Pi <- function(pnt) {
+  est.df <- lapply(pnt, function(x) {x[[1]]}) %>% unlist() %>% matrix(nrow = length(pnt), byrow = TRUE) %>% as.data.frame()
+  return(est.df)
+}
+
+### Returns the genotype error rate for a single MAF interval
+get_error_rate <- function(pnt, Pic) {
+  Pik_vec <- rep(NA, 5)
+  for (k in 1:5) {
+    Pik <- 0
+    for (i in 1:5) {
+      for (j in i:5) {
+        Pik <- Pik + Pic[i,j,k]
+      }
+    }
+    Pik_vec[k] <- Pik
+  }
+  
+  theta01 <- pnt[[1]]
+  theta02 <- pnt[[2]]
+  theta10 <- pnt[[3]]
+  theta12 <- pnt[[4]]
+  theta20 <- pnt[[5]]
+  theta21 <- pnt[[6]]
+  
+  theta00 <- 1-theta01-theta02
+  theta11 <- 1-theta10-theta12
+  theta22 <- 1-theta20-theta21
+  
+  theta_vec <- c(theta00, theta11, theta22)
+  # print(theta_vec)
+  # print(theta20 + theta21)
+  
+  delta <- 0
+  for (k in 1:3) {
+    delta <- delta + Pik_vec[k]*(1-theta_vec[k])
+  }
+  for (k in 4:5) {
+    delta <- delta + Pik_vec[k]
+  }
+  
+  return(delta)
+}
+```
+
+```{r}
+### Here we obtain our results for the mean deletion and genotype error rates
+weighted <- readRDS("..\\real-data-results\\weighted.averages.real.data.rds")
+weighted.boot <- readRDS("..\\real-data-results\\weighted.averages.real.data.boot.rds")
+
+### We plot the bootstrapped deletion and genotype error rates
+weighted.boot <- weighted.boot %>% unlist() %>% matrix(nrow = length(weighted.boot), byrow = TRUE) %>% as.data.frame()
+ggplot(weighted.boot, aes(x = V2)) + geom_histogram()
+ggplot(weighted.boot, aes(x = V1)) + geom_histogram()
+
+### We obtain the CI for these rates
+weighted %>% format(scientific = TRUE) 
+quantile(weighted.boot$V1, probs = c(0.05, 0.95)) %>% format(scientific = TRUE)
+quantile(weighted.boot$V2, probs = c(0.05, 0.95)) %>% format(scientific = TRUE)
+```
+
+```{r}
+### Here we obtain estimates of the deletion and genotype error rate from the first MAF interval (0, 0.001)
+pnt <- readRDS("..\\real-data-results\\est.res.pt.rds")
+
+res.1 <- readRDS("..\\real-data-results\\est.res.13.1.rds")
+res.2 <- readRDS("..\\real-data-results\\est.res.13.2.rds")
+res.3 <- readRDS("..\\real-data-results\\est.res.13.3.rds")
+res.4 <- readRDS("..\\real-data-results\\est.res.13.4.rds")
+res.5 <- readRDS("..\\real-data-results\\est.res.13.5.rds")
+res.6 <- readRDS("..\\real-data-results\\est.res.13.6.rds")
+res.7 <- readRDS("..\\real-data-results\\est.res.13.7.rds")
+res.8 <- readRDS("..\\real-data-results\\est.res.13.8.rds")
+
+res.boot <- c(res.1,
+              res.2,
+              res.3,
+              res.4,
+              res.5,
+              res.6,
+              res.7,
+              res.8)[-c(101,102,103,104)]
+
+### For each bootstrap sample, get deletion rate estimate from the first MAF interval
+get_pnt_gamma <- function(pnt, i) {
+  pnt.est <- get_est(pnt, i)
+  pnt.gamma <- pnt.est$V7[1] 
+  return(pnt.gamma)
+}
+gamma.pnt <- get_pnt_gamma(pnt, 6)
+gamma.boot <- lapply(res.boot, get_pnt_gamma, i = 2) %>% unlist()
+
+### Returns genotype error rate estimate from first MAF interval
+### pnt: results from a single bootstrap or the raw UK Biobank sequence data
+### gamma.pnt: estimate of the deletion rate corresponding to the first MAF interval
+### i: i = 2 for bootstrap, i = 6 for the raw data
+get_pnt_delta <- function(pnt, gamma.pnt, i) {
+  Pi_parent <- get_Pi(pnt)[1,] %>% unlist()
+  Pic <- get_Pi_c(Pi_parent, gamma.pnt)
+  pnt.est <- get_est(pnt, i)
+  pnt.delta <- get_error_rate(pnt.est[1,] %>% unlist(), Pic)
+  return(pnt.delta)
+}
+
+delta.pnt <- get_pnt_delta(pnt, gamma.pnt, 6)
+delta.boot <- map2(res.boot, gamma.boot, get_pnt_delta, i = 2) %>% unlist()
+delta.pnt
+quantile(delta.boot, probs = c(0.05, 0.95))
+gamma.pnt
+quantile(gamma.boot, probs = c(0.05, 0.95))
+```
+
+```{r}
+### Percentage of trio genotypes in the first MAF interval
+32960735766/34002051318
+```
+
+```{r}
+### Here we focus on point estimates obtained when applying our models to the raw data
+pnt <- readRDS("result\\est.res.pt.rds")
+
+### Redefining function to get point estimates to include column of MAF intervals
+get_est <- function(pnt, i) {
+  est.df <- lapply(pnt, function(x) {x[[i]][[1]]}) %>% unlist() %>% exp() %>% matrix(nrow = length(pnt), byrow = TRUE) %>% as.data.frame()
+  est.df$MAF_interval <- c(0.001, seq(0.005, 0.5, 0.005))
+  return(est.df)
+}
+
+### Point estimates from both models using SANN
+pnt.SANN <- get_est(pnt, 6)
+pnt.null.SANN <- get_est(pnt, 11)
+
+pnt.SANN$model <- "With deletions"
+pnt.null.SANN$model <- "Without deletions"
+pnt.null.SANN <- add_column(pnt.null.SANN, V7 = NA, .after = "V6")
+pnt.SANN <- rbind(pnt.SANN, pnt.null.SANN)
+
+colnames(pnt.SANN) <- c(
+       "Theta[I]^{'0,1'}", "Theta[I]^{'0,2'}",
+       "Theta[I]^{'1,0'}", "Theta[I]^{'1,2'}",
+       "Theta[I]^{'2,0'}", "Theta[I]^{'2,1'}", "Gamma[I]", "MAF Interval", "Model")
+
+### Convert to long
+pnt.SANN.long <- gather(pnt.SANN, key = "param.", value = "est.", `Theta[I]^{'0,1'}`:`Gamma[I]`)
+pnt.SANN.long$log.est. <- pnt.SANN.long$`est.` %>% log()
+```
+
+```{r}
+### Repeat the preceding code chunk but for bootstrapped estimates
+res.1 <- readRDS("real-data-results\\est.res.13.1.rds")
+res.2 <- readRDS("real-data-results\\est.res.13.2.rds")
+res.3 <- readRDS("real-data-results\\est.res.13.3.rds")
+res.4 <- readRDS("real-data-results\\est.res.13.4.rds")
+res.5 <- readRDS("real-data-results\\est.res.13.5.rds")
+res.6 <- readRDS("real-data-results\\est.res.13.6.rds")
+res.7 <- readRDS("real-data-results\\est.res.13.7.rds")
+res.8 <- readRDS("real-data-results\\est.res.13.8.rds")
+
+res.boot <- c(res.1,
+              res.2,
+              res.3,
+              res.4,
+              res.5,
+              res.6,
+              res.7,
+              res.8)[-c(101,102,103,104)]
+
+### Returns point estimates as matrix
+get_est_matrix <- function(pnt, i) {
+  est.matrix <- lapply(pnt, function(x) {x[[i]][[1]]}) %>% unlist() %>% matrix(nrow = length(pnt), byrow = TRUE)
+  return(est.matrix)
+}
+
+### List of matrices, each representing point estimates from a bootstrap
+pnt.boot <- lapply(res.boot, get_est_matrix, i = 2)
+
+### Calculate sd for each entry across matrices
+
+### First get a list of estimates for the first MAF interval from all bootstrapped results
+est_first_MAF_interval <- lapply(pnt.boot, function(x) {x[1,]}) %>% unlist() %>% matrix(byrow = TRUE, nrow = length(pnt.boot)) %>% as.data.frame()
+### For each parameter, calculate the sample standard deviation of the bootstrapped estimates
+sd.boot <- apply(est_first_MAF_interval, 2, sd)
+
+### Repeat above for all MAF intervals
+for (i in 2:nrow(pnt.null.SANN)) {
+  est_MAF_interval <- lapply(pnt.boot, function(x) {x[i,]}) %>% unlist() %>% matrix(byrow = TRUE, nrow = length(pnt.boot)) %>% as.data.frame()
+  sd_MAF_interval <- apply(est_MAF_interval, 2, sd)
+  sd.boot <- rbind(sd.boot, sd_MAF_interval)
+}
+sd.boot <- as.data.frame(sd.boot)
+sd.boot$MAF <- c(0.001, seq(0.005, 0.5, 0.005))
+sd.boot$Model <- "With deletions"
+colnames(sd.boot) <- c(
+       "Theta[I]^{'0,1'}", "Theta[I]^{'0,2'}",
+       "Theta[I]^{'1,0'}", "Theta[I]^{'1,2'}",
+       "Theta[I]^{'2,0'}", "Theta[I]^{'2,1'}", "Gamma[I]", "MAF Interval", "Model")
+
+### Convert to long
+sd.boot.long <- gather(sd.boot, key = "param.", value = "sd", `Theta[I]^{'0,1'}`:`Gamma[I]`)
+```
+
+```{r}
+### Repeat for null model
+pnt.boot.null <- lapply(res.boot, get_est_matrix, i = 3)
+
+### Calculate sd for each entry across matrices
+
+### First get a list of estimates for the first MAF interval from all bootstrapped results
+est_first_MAF_interval.null <- lapply(pnt.boot.null, function(x) {x[1,]}) %>% unlist() %>% matrix(byrow = TRUE, nrow = length(pnt.boot.null)) %>% as.data.frame()
+### For each parameter, calculate the sample standard deviation of the bootstrapped estimates
+sd.boot.null <- apply(est_first_MAF_interval.null, 2, sd)
+
+### Repeat above for all MAF intervals
+for (i in 2:nrow(pnt.null.SANN)) {
+  est_MAF_interval <- lapply(pnt.boot.null, function(x) {x[i,]}) %>% unlist() %>% matrix(byrow = TRUE, nrow = length(pnt.boot.null)) %>% as.data.frame()
+  sd_MAF_interval <- apply(est_MAF_interval, 2, sd)
+  sd.boot.null <- rbind(sd.boot.null, sd_MAF_interval)
+}
+sd.boot.null <- as.data.frame(sd.boot.null)
+sd.boot.null$MAF <- c(0.001, seq(0.005, 0.5, 0.005))
+sd.boot.null$Model <- "Without deletions"
+colnames(sd.boot.null) <- c(
+       "Theta[I]^{'0,1'}", "Theta[I]^{'0,2'}",
+       "Theta[I]^{'1,0'}", "Theta[I]^{'1,2'}",
+       "Theta[I]^{'2,0'}", "Theta[I]^{'2,1'}", "MAF Interval", "Model")
+
+### Convert to long
+sd.boot.null.long <- gather(sd.boot.null, key = "param.", value = "sd", `Theta[I]^{'0,1'}`:`Theta[I]^{'2,1'}`)
+
+### Join estimated standard error of MLEs and join to dataframe of point estimates
+sd.boot.long <- rbind(sd.boot.long, sd.boot.null.long)
+pnt.SANN.long <- left_join(pnt.SANN.long, sd.boot.long)
+
+### Calculate 95% CIs assuming a normal distribution in the log scale
+pnt.SANN.long$lower <- exp(pnt.SANN.long$log.est. - qnorm(0.975)*pnt.SANN.long$sd)
+pnt.SANN.long$upper <- exp(pnt.SANN.long$log.est. + qnorm(0.975)*pnt.SANN.long$sd)
+pnt.SANN.long$CI.width <- pnt.SANN.long$upper - pnt.SANN.long$lower
+```
+
+```{r}
+### Plot point estimates and CIs for all MAF intervals
+ggplot(pnt.SANN.long, aes(x = `MAF Interval`, y = log10(est.), color = Model)) + geom_point(alpha = 0.3) + geom_errorbar(aes(ymin = log10(lower), ymax = log10(upper)), alpha = 0.3) +
+  facet_wrap(~param., scales = "free", labeller = label_parsed) + theme_bw() + 
+  theme(text = element_text(size=15), axis.text.x=element_text(angle=90, hjust=1)) + 
+  scale_color_brewer(palette = "Set1") + labs(x = "MAF interval", y = "Point estimate (log10 scale)")
+ggsave("Fig.5.png", width = 7.5, height = 5, units = "in")
+```
+
+```{r}
+### Load in point estimates
+pnt <- readRDS("..\\real-data-results\\est.res.pt.rds")
+
+### Returns the negative log-likelihood
+get_likelihood <- function(pnt, i) {
+  likelihood.df <- lapply(pnt, function(x) {x[[i]][[2]]}) %>% unlist() %>% matrix(nrow = length(pnt), byrow = TRUE) %>% as.data.frame()
+  likelihood.df$MAF_interval <- c(0.001, seq(0.005, 0.5, 0.005))
+  return(likelihood.df)
+}
+
+### Obtain negative log-likelihood for a variety of optimization procedures, all from the model with deletions
+lik.NM <- get_likelihood(pnt, 2)
+lik.NM$optim <- "NM"
+  
+lik.BFGS <- get_likelihood(pnt, 3)
+lik.BFGS$optim <- "BFGS"
+
+lik.CG <- get_likelihood(pnt, 4)
+lik.CG$optim <- "CG"
+
+lik.L_BFGS_B <- get_likelihood(pnt, 5)
+lik.L_BFGS_B$optim <- "L_BFGS_B"
+
+lik.SANN <- get_likelihood(pnt, 6)
+lik.SANN$optim <- "SANN"
+
+likelihood.df <- rbind(lik.NM, lik.BFGS, lik.CG, lik.L_BFGS_B, lik.SANN)
+
+### Rank the optimization procedures for each MAF interval
+likelihood.df <- likelihood.df %>% 
+  arrange(MAF_interval, V1) %>% 
+  group_by(MAF_interval) %>% 
+  mutate(rank=row_number())
+
+### Get the procedure with the smallest mean negative log-likelihood
+sum.likelihood.df <- likelihood.df %>% group_by(optim) %>% summarize(mean_nll = mean(V1))
+
+which(sum.likelihood.df$mean_nll == min(sum.likelihood.df$mean_nll))
+```
+
+```{r}
+### Plot rank for each MAF interval
+ggplot(likelihood.df, aes(x = MAF_interval, y = rank, color = optim)) + geom_point()
+
+### Count number of times each optimization procedure was the best
+best.likelihood <- likelihood.df[likelihood.df$rank == 1,]
+best.likelihood %>% group_by(optim) %>% summarize(count = n())
+```
+
+```{r}
+### Here we calculate the AIC of both the model with and without deletions
+lik.alt <- get_likelihood(pnt, 6)
+lik.alt$model = "With deletions"
+lik.alt$AIC <- 2*7 + 2*lik.alt$V1 
+
+lik.null <- get_likelihood(pnt, 11)
+lik.null$model <- "Without deletions"
+lik.null$AIC <- 2*6 + 2*lik.null$V1
+
+AIC <- rbind(lik.null, lik.alt)
+AIC <- AIC %>% 
+  arrange(MAF_interval, AIC) %>% 
+  group_by(MAF_interval) %>% 
+  mutate(rank=row_number())
+
+### Plot rank of AIC
+ggplot(AIC, aes(x = MAF_interval, y = rank, color = model)) + geom_point()
+### Count number of times model with deletions is preferred
+best.AIC <- AIC[AIC$rank == 1,]
+best.AIC %>% group_by(model) %>% summarize(count = n())
+AIC %>% group_by(model) %>% summarize(mean_AIC = mean(AIC))
+
+### Obtain a dataframe with difference in AIC for each MAF interval
+AIC.plot <- cbind(lik.null, lik.alt)
+AIC.plot <- AIC.plot[,c(2,4,8)]
+colnames(AIC.plot) <- c("MAF interval", "AIC_null", "AIC_alt")
+AIC.plot$diff_AIC <- AIC.plot$AIC_alt - AIC.plot$AIC_null 
+AIC.plot$Prefers <- ifelse(AIC.plot$diff_AIC < 0, "With deletions", "Without deletions")
+
+### Plot difference in AIC
+ggplot(AIC.plot, aes(x = `MAF interval`, y = diff_AIC, color = Prefers)) + geom_point() + geom_hline(yintercept = 0) +
+  theme_bw() + theme(text = element_text(size=15), axis.text.x=element_text(angle=90, hjust=1)) + 
+  scale_color_brewer(palette = "Set1") + labs(x = "MAF interval", y = "Difference in AIC (with - without deletions)", color = "Favored Model")
+ggsave("Fig.6.png", width = 7.5, height = 5, units = "in")
+```
+
+```{r}
+### Checking if estimates from bootstrap look reasonable
+est_some_MAF_interval <- lapply(pnt.boot.null, function(x) {x[2,]}) %>% unlist() %>% matrix(byrow = TRUE, nrow = length(pnt.boot)) %>% as.data.frame()
+colnames(est_some_MAF_interval) <- c(
+       "Theta[I]^{'0,1'}", "Theta[I]^{'0,2'}",
+       "Theta[I]^{'1,0'}", "Theta[I]^{'1,2'}",
+       "Theta[I]^{'2,0'}", "Theta[I]^{'2,1'}")
+est_some_MAF_interval.long <- gather(est_some_MAF_interval, key = "param.", value = "est.", `Theta[I]^{'0,1'}`:`Theta[I]^{'2,1'}`)
+
+ggplot(est_some_MAF_interval.long, aes(x = est.)) + geom_histogram() +
+  facet_wrap(~param., scales = "free", labeller = label_parsed) + theme_bw() +
+  theme(text = element_text(size=15), axis.text.x=element_text(angle=90, hjust=1)) + 
+  scale_color_brewer(palette = "Set1") + labs(x = "Point estimate")
+
+apply(est_some_MAF_interval, 2, sd)
+```
