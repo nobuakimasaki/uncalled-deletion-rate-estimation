@@ -141,7 +141,7 @@ quantile(gamma.boot, probs = c(0.05, 0.95))
 
 ```{r}
 ### Here we focus on point estimates obtained when applying our models to the raw data
-pnt <- readRDS("result\\est.res.pt.rds")
+pnt <- readRDS("..\\real-data-results\\est.res.pt.rds")
 
 ### Redefining function to get point estimates to include column of MAF intervals
 get_est <- function(pnt, i) {
@@ -171,14 +171,14 @@ pnt.SANN.long$log.est. <- pnt.SANN.long$`est.` %>% log()
 
 ```{r}
 ### Repeat the preceding code chunk but for bootstrapped estimates
-res.1 <- readRDS("real-data-results\\est.res.13.1.rds")
-res.2 <- readRDS("real-data-results\\est.res.13.2.rds")
-res.3 <- readRDS("real-data-results\\est.res.13.3.rds")
-res.4 <- readRDS("real-data-results\\est.res.13.4.rds")
-res.5 <- readRDS("real-data-results\\est.res.13.5.rds")
-res.6 <- readRDS("real-data-results\\est.res.13.6.rds")
-res.7 <- readRDS("real-data-results\\est.res.13.7.rds")
-res.8 <- readRDS("real-data-results\\est.res.13.8.rds")
+res.1 <- readRDS("..\\real-data-results\\est.res.13.1.rds")
+res.2 <- readRDS("..\\real-data-results\\est.res.13.2.rds")
+res.3 <- readRDS("..\\real-data-results\\est.res.13.3.rds")
+res.4 <- readRDS("..\\real-data-results\\est.res.13.4.rds")
+res.5 <- readRDS("..\\real-data-results\\est.res.13.5.rds")
+res.6 <- readRDS("..\\real-data-results\\est.res.13.6.rds")
+res.7 <- readRDS("..\\real-data-results\\est.res.13.7.rds")
+res.8 <- readRDS("..\\real-data-results\\est.res.13.8.rds")
 
 res.boot <- c(res.1,
               res.2,
