@@ -2,3 +2,4 @@ Code for "Simultaneous estimation of genotype error and uncalled deletion rates 
 
 real-data-code stores the R code used to analyze the UK Biobank sequence data. real-data-results contain files outputted by this code.
 sim-code stores the R code used to analyze the UK Biobank sequence data. sim-results contain files outputted by this code.
+figures stores the figures used in the paper.
