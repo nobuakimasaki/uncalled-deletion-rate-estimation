@@ -77,10 +77,15 @@ weighted.boot <- weighted.boot %>% unlist() %>% matrix(nrow = length(weighted.bo
 ggplot(weighted.boot, aes(x = V2)) + geom_histogram()
 ggplot(weighted.boot, aes(x = V1)) + geom_histogram()
 
+### Estimating the proportion of genotype errors attributable to deletions
+weighted.boot$prop <- 2*weighted.boot$V2/weighted.boot$V1
+
 ### We obtain the CI for these rates
-weighted %>% format(scientific = TRUE) 
+weighted %>% format(scientific = TRUE)
+2*1.222832e-04/3.164710e-04
 quantile(weighted.boot$V1, probs = c(0.05, 0.95)) %>% format(scientific = TRUE)
 quantile(weighted.boot$V2, probs = c(0.05, 0.95)) %>% format(scientific = TRUE)
+quantile(weighted.boot$prop, probs = c(0.05, 0.95)) %>% format(scientific = TRUE)
 ```
 
 ```{r}
