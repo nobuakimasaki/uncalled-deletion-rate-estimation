@@ -199,30 +199,30 @@ colnames(trueInt) <- c("param.", "Int")
 p01 <- ggplot(point.est.01, aes(x = model, y = est., color = model)) + geom_beeswarm() +
   geom_hline(data = trueInt, aes(yintercept = as.numeric(Int)), color = "black") + facet_wrap(~param., scales = "free", labeller = label_parsed) + theme_bw() +
   geom_hline(data = summary.01 %>% filter(model == "With deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#E41A1C") +
-  geom_hline(data = summary.01 %>% filter(model == "Without deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#377EB8") +
-  theme(text = element_text(size=15), axis.text.x=element_blank(), legend.position = c(0.87, 0.17), plot.title = element_text(hjust = 0.5)) + 
-  scale_color_brewer(palette = "Set1") + labs(x = "Model", y = "Point estimate", title = "MAF interval: (0.01, 0.015]", color = "Model")
+  geom_hline(data = summary.01 %>% filter(model == "Without deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#377EB8") + 
+  scale_color_brewer(palette = "Set1") + labs(y = "Point estimate", title = "MAF interval: (0.01, 0.015]", color = "Model") +
+  theme(text = element_text(size=18), axis.text.x=element_blank(), axis.ticks.x=element_blank(), axis.title.x=element_blank(), legend.position = "none", legend.text=element_text(size=12), legend.box.background = element_rect(color = "black"), legend.box.margin = margin(t = 1, l = 1), plot.title = element_text(hjust = 0.5)) 
 
 p05 <- ggplot(point.est.05, aes(x = model, y = est., color = model)) + geom_beeswarm() +
   geom_hline(data = trueInt, aes(yintercept = as.numeric(Int)), color = "black") + facet_wrap(~param., scales = "free", labeller = label_parsed) + theme_bw() +
   geom_hline(data = summary.05 %>% filter(model == "With deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#E41A1C") +
-  geom_hline(data = summary.05 %>% filter(model == "Without deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#377EB8") +
-  theme(text = element_text(size=15), axis.text.x=element_blank(), legend.position = c(0.87, 0.17), plot.title = element_text(hjust = 0.5)) + 
-  scale_color_brewer(palette = "Set1") + labs(x = "Model", y = "Point estimate", title = "MAF interval: (0.05, 0.055]", color = "Model")
+  geom_hline(data = summary.05 %>% filter(model == "Without deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#377EB8") + 
+  scale_color_brewer(palette = "Set1") + labs(y = "Point estimate", title = "MAF interval: (0.05, 0.055]", color = "Model") +
+  theme(text = element_text(size=18), axis.text.x=element_blank(), axis.ticks.x=element_blank(), axis.title.x=element_blank(), axis.title.y=element_blank(), legend.position = c(1, 0), legend.justification = c(1,0), legend.title = element_text(size=18), legend.text=element_text(size=18), legend.box.background = element_rect(color = "black"), legend.box.margin = margin(t = 1, l = 1), plot.title = element_text(hjust = 0.5)) 
 
 p25 <- ggplot(point.est.25, aes(x = model, y = est., color = model)) + geom_beeswarm() +
   geom_hline(data = trueInt, aes(yintercept = as.numeric(Int)), color = "black") + facet_wrap(~param., scales = "free", labeller = label_parsed) + theme_bw() +
   geom_hline(data = summary.25 %>% filter(model == "With deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#E41A1C") +
-  geom_hline(data = summary.25 %>% filter(model == "Without deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#377EB8") +
-  theme(text = element_text(size=15), axis.text.x=element_blank(), legend.position = c(0.87, 0.17), plot.title = element_text(hjust = 0.5)) + 
-  scale_color_brewer(palette = "Set1") + labs(x = "Model", y = "Point estimate", title = "MAF interval: (0.25, 0.255]", color = "Model")
+  geom_hline(data = summary.25 %>% filter(model == "Without deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#377EB8") + 
+  scale_color_brewer(palette = "Set1") + labs(y = "Point estimate", title = "MAF interval: (0.25, 0.255]", color = "Model") +
+  theme(text = element_text(size=18), axis.text.x=element_blank(), axis.ticks.x=element_blank(), axis.title.x=element_blank(), legend.position = "none", legend.text=element_text(size=12), legend.box.background = element_rect(color = "black"), legend.box.margin = margin(t = 1, l = 1), plot.title = element_text(hjust = 0.5)) 
 
 p49 <- ggplot(point.est.49, aes(x = model, y = est., color = model)) + geom_beeswarm() +
   geom_hline(data = trueInt, aes(yintercept = as.numeric(Int)), color = "black") + facet_wrap(~param., scales = "free", labeller = label_parsed) + theme_bw() +
   geom_hline(data = summary.49 %>% filter(model == "With deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#E41A1C") +
-  geom_hline(data = summary.49 %>% filter(model == "Without deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#377EB8") +
-  theme(text = element_text(size=15), axis.text.x=element_blank(), legend.position = c(0.87, 0.17), plot.title = element_text(hjust = 0.5)) + 
-  scale_color_brewer(palette = "Set1") + labs(x = "Model", y = "Point estimate", title = "MAF interval: (0.49, 0.495]", color = "Model")
+  geom_hline(data = summary.49 %>% filter(model == "Without deletions"), aes(yintercept = as.numeric(mean.est.)), color = "#377EB8") + 
+  scale_color_brewer(palette = "Set1") + labs(y = "Point estimate", title = "MAF interval: (0.49, 0.495]", color = "Model") +
+  theme(text = element_text(size=18), axis.text.x=element_blank(), axis.ticks.x=element_blank(), axis.title.x=element_blank(), axis.title.y=element_blank(), legend.position = c(1, 0), legend.justification = c(1,0), legend.title = element_text(size=18), legend.text=element_text(size=18), legend.box.background = element_rect(color = "black"), legend.box.margin = margin(t = 1, l = 1), plot.title = element_text(hjust = 0.5)) 
 
 figure3 <- arrangeGrob(p01, p05, nrow=1)
 ggsave(file="fig3.png", figure3, width = 20, height = 10)
@@ -384,6 +384,4 @@ summary.49.wod %>% mutate_if(is.numeric, signif, digits = 4)
 # 
 # ggplot(AIC.gather, aes(x = iter, y = AIC, color = model)) + geom_point() + theme_bw()
 ```
-
-
 
