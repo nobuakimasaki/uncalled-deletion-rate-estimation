@@ -1,0 +1,309 @@
+---
+title: "deletions_sim_all_MAF_analysis"
+author: "Nobuaki Masaki"
+date: "1/9/2024"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+##### This file is used to analyze the model fit on the simulated data
+
+### Load packages
+library(tidyverse)
+library(ggbeeswarm)
+library(latex2exp)
+library(gridExtra)
+library(resample)
+
+pnt.est <- readRDS("res\\est.res.13.1.all_MAF.sim.rds")[1]
+
+# seems right but check later
+get_trio_freq <- function(df) {
+  df$freq <- df$count/sum(df$count)
+  f <- df$freq
+  
+  Pi0 <- matrix(f[1:25], nrow = 5, byrow = TRUE)
+  Pi1 <- matrix(c(rep(0,5), f[26:45]), nrow = 5, byrow = TRUE)
+  Pi2 <- matrix(c(rep(0,10), f[46:60]), nrow = 5, byrow = TRUE)
+  Pi3 <- matrix(c(rep(0,15), f[61:70]), nrow = 5, byrow = TRUE)
+  Pi4 <- matrix(c(rep(0,20), f[71:75]), nrow = 5, byrow = TRUE)
+  
+  Pi <- array(c(Pi0, Pi1, Pi2, Pi3, Pi4), dim = c(5,5,5))
+
+  Pi <- aperm(Pi, c(3,1,2))
+  return(Pi)
+}
+
+get_error_rate <- function(Pic, pnt) {
+  Pik_vec <- rep(NA, 5)
+  # sum together trio frequencies to get frequency of each genotype
+  for (k in 1:5) {
+    Pik <- 0
+    for (i in 1:5) {
+      for (j in i:5) {
+        Pik <- Pik + Pic[i,j,k]
+      }
+    }
+    Pik_vec[k] <- Pik
+  }
+
+  theta01 <- pnt[[1]]
+  theta02 <- pnt[[2]]
+  theta10 <- pnt[[3]]
+  theta12 <- pnt[[4]]
+  theta20 <- pnt[[5]]
+  theta21 <- pnt[[6]]
+  
+  theta00 <- 1-theta01-theta02
+  theta11 <- 1-theta10-theta12
+  theta22 <- 1-theta20-theta21
+  
+  theta_vec <- c(theta00, theta11, theta22)
+  
+  # if genotype does not contain deleted allele, multiply by probability of miscall
+  delta <- 0
+  delta_from_deletion <- 0
+  for (k in 1:3) {
+    delta <- delta + Pik_vec[k]*(1-theta_vec[k])
+  }
+  # if genotype contains deleted allele, it is miscalled
+  for (k in 4:5) {
+    delta <- delta + Pik_vec[k]
+    delta_from_deletion <- delta_from_deletion + Pik_vec[k]
+  }
+  return(delta)
+}
+
+get_error_rate2 <- function(Pic, pnt) {
+  Pik_vec <- rep(NA, 5)
+  # sum together trio frequencies to get frequency of each genotype
+  for (k in 1:5) {
+    Pik <- 0
+    for (i in 1:5) {
+      for (j in i:5) {
+        Pik <- Pik + Pic[i,j,k]
+      }
+    }
+    Pik_vec[k] <- Pik
+  }
+
+  theta01 <- pnt[[1]]
+  theta02 <- pnt[[2]]
+  theta10 <- pnt[[3]]
+  theta12 <- pnt[[4]]
+  theta20 <- pnt[[5]]
+  theta21 <- pnt[[6]]
+  
+  theta00 <- 1-theta01-theta02
+  theta11 <- 1-theta10-theta12
+  theta22 <- 1-theta20-theta21
+  
+  theta_vec <- c(theta00, theta11, theta22)
+  
+  # if genotype does not contain deleted allele, multiply by probability of miscall
+  delta <- 0
+  delta_from_deletion <- 0
+  for (k in 1:3) {
+    delta <- delta + Pik_vec[k]*(1-theta_vec[k])
+  }
+  # if genotype contains deleted allele, it is miscalled
+  for (k in 4:5) {
+    delta <- delta + Pik_vec[k]
+    delta_from_deletion <- delta_from_deletion + Pik_vec[k]
+  }
+  return(delta)
+}
+```
+
+```{r}
+# obtaining the true proportion for each MAF interval and weighted across MAF intervals
+true.trio.cnts <- readRDS("res\\sim_true_trio_cnts_all_MAF.rds")
+true.trio.freq.lst <- lapply(true.trio.cnts, get_trio_freq)
+param_true <- c(2e-4,5e-7,9e-5,2e-4,2e-6,9e-4,2e-4)
+true.error.rate.lst <- lapply(true.trio.freq.lst, get_error_rate, pnt = param_true)
+
+obs.trio.cnts <- readRDS("res\\sim_obs_trio_cnts_all_MAF.rds") %>% group_by(MAF_start) %>% summarize_all(sum) %>% arrange(MAF_start) %>% select(-MAF_start, -trio_id) %>% rowSums()
+true.error.rate.weighted <- weighted.mean(unlist(true.error.rate.lst), w = obs.trio.cnts) 
+
+p1 <- c(0.001, 0.005)
+p_start <- seq(0.005, 0.495, 0.005)
+p_matrix_add <- cbind(p_start, p_start + 0.005)
+p_matrix_add <- rbind(p1, p_matrix_add)
+df.plot.1 <- cbind(p_matrix_add, true.error.rate.lst %>% unlist(), obs.trio.cnts) %>% as.data.frame()
+
+p1 <- ggplot(df.plot.1, aes(p_start, V3, size = obs.trio.cnts)) + geom_point(alpha = 0.5) + theme_bw() + labs(x = "MAF interval start", y = "Genotype error rate", size = "Observed trio genotype count") + geom_hline(yintercept = true.error.rate.weighted)
+
+p1
+#ggsave("p1.011124.png", width = 10/1.5, height = 6/1.5)
+
+true.prop <- 4e-4/true.error.rate.weighted
+```
+
+```{r}
+# obtaining the point estimate of the proportion for each MAF interval and weighted across MAF intervals
+source("deletion_lik_functions.R")
+
+# observed trio counts
+sim.obs.trio.cnts <- readRDS("res\\sim_obs_trio_cnts_all_MAF.rds") %>% group_by(MAF_start) %>% summarize_all(sum) %>% select(-trio_id, -MAF_start)
+#sim.obs.trio.cnts
+sim.obs.trio.cnts.lst <- split(sim.obs.trio.cnts, seq(nrow(sim.obs.trio.cnts)))
+
+# estimated anc parent freq.
+anc.parent.freq.est <- lapply(sim.obs.trio.cnts.lst, function(x) {get_Pi_parents_consistent(x) %>% unlist()})
+
+# gamma estimates
+param.est <- lapply(pnt.est[[1]], function(x) {exp(x[[2]][[1]])})
+gamma.est <- lapply(param.est, function(x) {x[[7]]})
+
+# estimated true trio freq.
+true.trio.freq.est <- map2(anc.parent.freq.est, gamma.est, get_Pi_c)
+
+# estimated genotype error rate
+genotype.error.rate.est <- map2(true.trio.freq.est, param.est, get_error_rate)
+est.error.rate.weighted <- weighted.mean(unlist(genotype.error.rate.est), w = obs.trio.cnts)
+
+df.plot.2 <- cbind(p_matrix_add, genotype.error.rate.est %>% unlist(), true.error.rate.lst %>% unlist(), obs.trio.cnts) %>% as.data.frame() %>% gather(key = "est", value = "genotype error rate", V3:V4)
+df.plot.2$est <- ifelse(df.plot.2$est == "V3", "Estimate", "True value") %>% as.factor()
+
+wls <- lm(formula = p_start ~ `genotype error rate`, data = df.plot.2, weights = obs.trio.cnts)
+
+p2 <- ggplot(df.plot.2, aes(p_start, `genotype error rate`, color = est, size = obs.trio.cnts)) + geom_point(alpha = 0.5) + theme_bw() + labs(x = "MAF interval", y = "Genotype error rate", size = "Trio genotype count", color = "Estimate or Truth?") + geom_hline(yintercept = est.error.rate.weighted, color = "#E41A1C") + geom_hline(yintercept = true.error.rate.weighted, color = "#377EB8") + scale_color_brewer(palette = "Set1", guide = guide_legend(title = NULL)) + theme(text = element_text(size=16), legend.title=element_text(size=13)) 
+p2
+ggsave("Fig.5.all.MAF.png", width = 10, height = 6)
+# E41A1C
+# 377EB8
+# estimated proportion
+p2.2 <- ggplot(df.plot.2, aes(p_start, `genotype error rate`, color = est, size = obs.trio.cnts)) + geom_point(alpha = 0.5) + theme_bw() + labs(x = "MAF interval", y = "Genotype error rate", size = "Trio genotype count", color = "Estimate or Truth?") + geom_hline(yintercept = est.error.rate.weighted, color = "#E41A1C") + geom_hline(yintercept = true.error.rate.weighted, color = "#377EB8") + scale_color_brewer(palette = "Set1", guide = guide_legend(title = NULL)) + theme(text = element_text(size=16), legend.title=element_text(size=13)) + geom_smooth(method = "lm", color = "black", show.legend = FALSE)
+ggsave("Fig.5.all.MAF.with.line.png", width = 10, height = 6)
+
+est.gamma.weighted <- weighted.mean(unlist(gamma.est), w = obs.trio.cnts)
+
+df.plot3 <- cbind(p_matrix_add, gamma.est %>% unlist(), obs.trio.cnts) %>% as.data.frame()
+p3 <- ggplot(df.plot3, aes(p_start, V3, size = obs.trio.cnts)) + geom_point(alpha = 0.5) + theme_bw() + labs(x = "MAF interval", y = "Estimated uncalled deletion rate", size = "Trio genotype count") + geom_hline(yintercept = est.gamma.weighted) + geom_hline(yintercept = 2e-4, color = "#377EB8") + scale_color_brewer(palette = "Set1") + theme(text = element_text(size=16), legend.title=element_text(size=13))
+p3
+ggsave("Fig.6.all.MAF.png", width = 10, height = 6)
+
+est.prop <- 2*est.gamma.weighted/est.error.rate.weighted
+true.prop
+est.prop
+```
+
+```{r}
+# bootstrap
+
+# observed trio counts
+resamp1 <- readRDS("res\\resamp.trios.13.1.all_MAF.sim.rds")
+resamp2 <- readRDS("res\\resamp.trios.13.2.all_MAF.sim.rds")[-1]
+resamp3 <- readRDS("res\\resamp.trios.13.3.all_MAF.sim.rds")[-1]
+resamp4 <- readRDS("res\\resamp.trios.13.4.all_MAF.sim.rds")[-1]
+resamp5 <- readRDS("res\\resamp.trios.13.5.all_MAF.sim.rds")[-1]
+resamp6 <- readRDS("res\\resamp.trios.13.6.all_MAF.sim.rds")[-1]
+resamp7 <- readRDS("res\\resamp.trios.13.7.all_MAF.sim.rds")[-1]
+resamp8 <- readRDS("res\\resamp.trios.13.8.all_MAF.sim.rds")[-1]
+
+resamp.boot <- c(resamp1, resamp2, resamp3, resamp4,
+                 resamp5, resamp6, resamp7, resamp8)[1:101]
+
+res1 <- readRDS("res\\est.res.13.1.all_MAF.sim.rds")
+res2 <- readRDS("res\\est.res.13.2.all_MAF.sim.rds")[-1]
+res3 <- readRDS("res\\est.res.13.3.all_MAF.sim.rds")[-1]
+res4 <- readRDS("res\\est.res.13.4.all_MAF.sim.rds")[-1]
+res5 <- readRDS("res\\est.res.13.5.all_MAF.sim.rds")[-1]
+res6 <- readRDS("res\\est.res.13.6.all_MAF.sim.rds")[-1]
+res7 <- readRDS("res\\est.res.13.7.all_MAF.sim.rds")[-1]
+res8 <- readRDS("res\\est.res.13.8.all_MAF.sim.rds")[-1]
+
+res.boot <- c(res1, res2, res3, res4, res5, res6, res7, res8)[1:101]
+
+# observed trio counts
+sim.obs.trio.cnts.all.trios <- readRDS("res\\sim_obs_trio_cnts_all_MAF.rds")
+sim.obs.trio.cnts.boot <- list()
+
+for (i in 1:length(resamp.boot)) {
+  trio_counts <- matrix(nrow = 0, ncol = 20) %>% as.data.frame()
+  colnames(trio_counts) <- c(paste0("V", 1:18), "trio_id", "MAF_start")
+  for (trio in resamp.boot[[i]]) {
+    trio_counts <- rbind(trio_counts, sim.obs.trio.cnts.all.trios %>% filter(trio_id == trio))
+  }
+  sim.obs.trio.cnts.boot[[i]] <- trio_counts %>% group_by(MAF_start) %>% summarize_all(sum) %>% select(-trio_id) %>% arrange(MAF_start) %>% select(-MAF_start) %>% split(1:100)
+}
+
+# sim.obs.trio.cnts.boot contains the observed trio counts for each bootstrap iteration (100 MAF intervals for each iteration)
+
+# estimated anc parent freq.
+get_est_anc_freq <- function(sim.obs.trio.cnts.lst) {
+  lapply(sim.obs.trio.cnts.lst, function(x) {get_Pi_parents_consistent(x) %>% unlist()})
+} 
+anc.parent.freq.est.boot <- lapply(sim.obs.trio.cnts.boot, get_est_anc_freq)
+
+# anc.parent.freq.est.boot contains the estimated ancestral parental frequencies for each bootstrap iteration 
+
+# gamma estimates
+get_param <- function(pnt.est) {
+  lapply(pnt.est, function(x) {exp(x[[2]][[1]])})
+}
+param.est.boot <- lapply(res.boot, get_param)
+  
+get_gamma <- function(pnt.est) {
+  lapply(pnt.est, function(x) {exp(x[[2]][[1]][[7]])}) %>% unlist() 
+}
+gamma.est.boot <- lapply(res.boot, get_gamma) 
+# gamma.est.boot.CI1 <- gamma.est.boot %>% unlist() %>% matrix(byrow = TRUE, nrow = 100) %>% apply(2, quantile, probs = c(0.05, 0.95)) %>% t()
+# gamma.est.boot.sd <- gamma.est.boot %>% unlist() %>% log() %>% matrix(byrow = TRUE, nrow = 100) %>% apply(2, sd)
+# df.plot5 <- cbind(df.plot3, gamma.est.boot.CI1, gamma.est.boot.sd)
+# df.plot5$CI2.upper <- (log(df.plot5$V3) + qnorm(p = 0.95)*df.plot5$gamma.est.boot.sd) %>% exp()
+# df.plot5$CI2.lower <- (log(df.plot5$V3) - qnorm(p = 0.95)*df.plot5$gamma.est.boot.sd) %>% exp()
+# 
+# p5 <- ggplot(df.plot5, aes(p_start, V3)) + geom_point(alpha = 0.5) + theme_bw() + labs(x = "MAF interval start", y = "Uncalled deletion rate", size = "Observed trio genotype count") + geom_hline(yintercept = est.gamma.weighted) + geom_hline(yintercept = 2e-4, color = "#E41A1C") + scale_color_brewer(palette = "Set1") + geom_errorbar(aes(ymin = `5%`, ymax = `95%`))
+# p5
+
+# estimated true trio freq.
+get_est_true_freq <- function(anc.parent.freq.est, gamma.est) {
+  map2(anc.parent.freq.est, gamma.est, get_Pi_c)
+}
+true.freq.est.boot <- map2(anc.parent.freq.est.boot, gamma.est.boot, get_est_true_freq)
+
+# true.freq.est.boot contains the estimated true trio frequencies for each bootstrap iteration
+
+# estimated genotype error rate
+get_est_geno_error_rate <- function(true.trio.freq.est, param.est) {
+  map2(true.trio.freq.est, param.est, get_error_rate) %>% unlist()
+}
+genotype.error.rate.est.boot <- map2(true.freq.est.boot, param.est.boot, get_est_geno_error_rate)
+# genotype.error.rate.est.boot.df <- genotype.error.rate.est.boot  %>% unlist() %>% matrix(byrow = TRUE, nrow = 101)
+#  
+# genotype.error.rate.est.CI.all.MAF <- apply(genotype.error.rate.est.boot.df[-1,], 2, quantile, probs = c(0.05, 0.95)) %>% t
+# df.plot.4 <- cbind(cbind(p_matrix_add, genotype.error.rate.est %>% unlist(), true.error.rate.lst %>% unlist(), obs.trio.cnts) %>% as.data.frame(), 
+#                    genotype.error.rate.est.CI.all.MAF) %>% 
+#   gather(key = "est", value = "genotype error rate", V3:V4)
+# df.plot.4$est <- ifelse(df.plot.4$est == "V3", "Estimate", "Truth") %>% as.factor()
+# df.plot.4.true <- df.plot.4 %>% filter(est == "Truth")
+# #sum((df.plot.4.true$`5%` < df.plot.4.true$`genotype error rate`) & (df.plot.4.true$`95%` > df.plot.4.true$`genotype error rate`))
+# 
+# p4 <- ggplot(df.plot.4, aes(p_start, `genotype error rate`, color = est)) + geom_point(alpha = 0.5) + theme_bw() + labs(x = "MAF interval start", y = "Genotype error rate", size = "Observed trio genotype count", color = "Estimate or Truth?") + geom_hline(yintercept = est.error.rate.weighted, color = "#E41A1C") + geom_hline(yintercept = true.error.rate.weighted, color = "#377EB8") + scale_color_brewer(palette = "Set1") + geom_errorbar(aes(ymin = `5%`, ymax = `95%`), color = "#E41A1C")
+# p4
+
+genotype.error.rate.est.weighted.boot <- lapply(genotype.error.rate.est.boot, function(x) {weighted.mean(x, w = obs.trio.cnts)}) %>% unlist()
+# estimated proportion
+gamma.weighted.boot <- lapply(gamma.est.boot, function(x) {weighted.mean(x, w = obs.trio.cnts)}) %>% unlist()
+est.prop.boot <- 2*gamma.weighted.boot/genotype.error.rate.est.weighted.boot
+quantile(est.prop.boot[-1], probs = c(0.05, 0.95))
+```
+
+```{r}
+true.error.rate.weighted
+est.error.rate.weighted
+quantile(genotype.error.rate.est.weighted.boot, probs = c(0.05, 0.95))
+
+est.gamma.weighted
+quantile(gamma.weighted.boot, probs = c(0.05, 0.95))
+
+true.prop
+est.prop
+quantile(est.prop.boot, probs = c(0.05, 0.95))
+```
+
+```{r}
+sum(sim.obs.trio.cnts[1,])
+```
+
