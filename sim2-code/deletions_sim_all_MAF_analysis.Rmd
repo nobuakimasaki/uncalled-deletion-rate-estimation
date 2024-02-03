@@ -167,7 +167,7 @@ df.plot.2$est <- ifelse(df.plot.2$est == "V3", "Estimate", "True value") %>% as.
 
 wls <- lm(formula = p_start ~ `genotype error rate`, data = df.plot.2, weights = obs.trio.cnts)
 
-p2 <- ggplot(df.plot.2, aes(p_start, `genotype error rate`, color = est, size = obs.trio.cnts)) + geom_point(alpha = 0.5) + theme_bw() + labs(x = "MAF interval", y = "Genotype error rate", size = "Trio genotype count", color = "Estimate or Truth?") + geom_hline(yintercept = est.error.rate.weighted, color = "#E41A1C") + geom_hline(yintercept = true.error.rate.weighted, color = "#377EB8") + scale_color_brewer(palette = "Set1", guide = guide_legend(title = NULL)) + theme(text = element_text(size=16), legend.title=element_text(size=13), axis.title.x = element_text(vjust = -0.1), axis.title.y = element_text(vjust = 3), plot.margin = grid::unit(c(4,4,4,4), units = "mm")) 
+p2 <- ggplot(df.plot.2, aes(p_start, `genotype error rate`, color = est, size = obs.trio.cnts)) + geom_point(alpha = 0.5) + theme_bw() + labs(x = "MAF interval", y = "Genotype error rate", size = "Trio genotype count", color = "Estimate or Truth?") + geom_hline(yintercept = est.error.rate.weighted, color = "#E41A1C") + geom_hline(yintercept = true.error.rate.weighted, color = "#377EB8") + scale_color_brewer(palette = "Set1", guide = guide_legend(title = NULL)) + theme(text = element_text(size=16), legend.title=element_text(size=13), axis.title.x = element_text(vjust = -0.1), axis.title.y = element_text(vjust = 1.7), plot.margin = grid::unit(c(4,4,4,4), units = "mm")) 
 p2
 ggsave("Fig.3.png", width = 10, height = 6)
 # E41A1C
