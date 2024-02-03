@@ -15,7 +15,7 @@ library(latex2exp)
 library(gridExtra)
 library(resample)
 
-pnt.est <- readRDS("res\\est.res.13.1.all_MAF.sim.rds")[1]
+pnt.est <- readRDS("..\\sim2-results\\est.res.13.1.all_MAF.sim.rds")[1]
 
 # seems right but check later
 get_trio_freq <- function(df) {
@@ -117,12 +117,12 @@ get_error_rate2 <- function(Pic, pnt) {
 
 ```{r}
 # obtaining the true proportion for each MAF interval and weighted across MAF intervals
-true.trio.cnts <- readRDS("res\\sim_true_trio_cnts_all_MAF.rds")
+true.trio.cnts <- readRDS("..\\sim2-results\\sim_true_trio_cnts_all_MAF.rds")
 true.trio.freq.lst <- lapply(true.trio.cnts, get_trio_freq)
 param_true <- c(2e-4,5e-7,9e-5,2e-4,2e-6,9e-4,2e-4)
 true.error.rate.lst <- lapply(true.trio.freq.lst, get_error_rate, pnt = param_true)
 
-obs.trio.cnts <- readRDS("res\\sim_obs_trio_cnts_all_MAF.rds") %>% group_by(MAF_start) %>% summarize_all(sum) %>% arrange(MAF_start) %>% select(-MAF_start, -trio_id) %>% rowSums()
+obs.trio.cnts <- readRDS("..\\sim2-results\\sim_obs_trio_cnts_all_MAF.rds") %>% group_by(MAF_start) %>% summarize_all(sum) %>% arrange(MAF_start) %>% select(-MAF_start, -trio_id) %>% rowSums()
 true.error.rate.weighted <- weighted.mean(unlist(true.error.rate.lst), w = obs.trio.cnts) 
 
 p1 <- c(0.001, 0.005)
@@ -144,7 +144,7 @@ true.prop <- 4e-4/true.error.rate.weighted
 source("deletion_lik_functions.R")
 
 # observed trio counts
-sim.obs.trio.cnts <- readRDS("res\\sim_obs_trio_cnts_all_MAF.rds") %>% group_by(MAF_start) %>% summarize_all(sum) %>% select(-trio_id, -MAF_start)
+sim.obs.trio.cnts <- readRDS("..\\sim2-results\\sim_obs_trio_cnts_all_MAF.rds") %>% group_by(MAF_start) %>% summarize_all(sum) %>% select(-trio_id, -MAF_start)
 #sim.obs.trio.cnts
 sim.obs.trio.cnts.lst <- split(sim.obs.trio.cnts, seq(nrow(sim.obs.trio.cnts)))
 
@@ -167,21 +167,21 @@ df.plot.2$est <- ifelse(df.plot.2$est == "V3", "Estimate", "True value") %>% as.
 
 wls <- lm(formula = p_start ~ `genotype error rate`, data = df.plot.2, weights = obs.trio.cnts)
 
-p2 <- ggplot(df.plot.2, aes(p_start, `genotype error rate`, color = est, size = obs.trio.cnts)) + geom_point(alpha = 0.5) + theme_bw() + labs(x = "MAF interval", y = "Genotype error rate", size = "Trio genotype count", color = "Estimate or Truth?") + geom_hline(yintercept = est.error.rate.weighted, color = "#E41A1C") + geom_hline(yintercept = true.error.rate.weighted, color = "#377EB8") + scale_color_brewer(palette = "Set1", guide = guide_legend(title = NULL)) + theme(text = element_text(size=16), legend.title=element_text(size=13)) 
+p2 <- ggplot(df.plot.2, aes(p_start, `genotype error rate`, color = est, size = obs.trio.cnts)) + geom_point(alpha = 0.5) + theme_bw() + labs(x = "MAF interval", y = "Genotype error rate", size = "Trio genotype count", color = "Estimate or Truth?") + geom_hline(yintercept = est.error.rate.weighted, color = "#E41A1C") + geom_hline(yintercept = true.error.rate.weighted, color = "#377EB8") + scale_color_brewer(palette = "Set1", guide = guide_legend(title = NULL)) + theme(text = element_text(size=16), legend.title=element_text(size=13), axis.title.x = element_text(vjust = -0.1), axis.title.y = element_text(vjust = 2.1), plot.margin = grid::unit(c(4,4,4,4), units = "mm")) 
 p2
-ggsave("Fig.5.all.MAF.png", width = 10, height = 6)
+ggsave("Fig.3.png", width = 10, height = 6)
 # E41A1C
 # 377EB8
 # estimated proportion
 p2.2 <- ggplot(df.plot.2, aes(p_start, `genotype error rate`, color = est, size = obs.trio.cnts)) + geom_point(alpha = 0.5) + theme_bw() + labs(x = "MAF interval", y = "Genotype error rate", size = "Trio genotype count", color = "Estimate or Truth?") + geom_hline(yintercept = est.error.rate.weighted, color = "#E41A1C") + geom_hline(yintercept = true.error.rate.weighted, color = "#377EB8") + scale_color_brewer(palette = "Set1", guide = guide_legend(title = NULL)) + theme(text = element_text(size=16), legend.title=element_text(size=13)) + geom_smooth(method = "lm", color = "black", show.legend = FALSE)
-ggsave("Fig.5.all.MAF.with.line.png", width = 10, height = 6)
+#ggsave("Fig.5.all.MAF.with.line.png", width = 10, height = 6)
 
 est.gamma.weighted <- weighted.mean(unlist(gamma.est), w = obs.trio.cnts)
 
 df.plot3 <- cbind(p_matrix_add, gamma.est %>% unlist(), obs.trio.cnts) %>% as.data.frame()
-p3 <- ggplot(df.plot3, aes(p_start, V3, size = obs.trio.cnts)) + geom_point(alpha = 0.5) + theme_bw() + labs(x = "MAF interval", y = "Estimated uncalled deletion rate", size = "Trio genotype count") + geom_hline(yintercept = est.gamma.weighted) + geom_hline(yintercept = 2e-4, color = "#377EB8") + scale_color_brewer(palette = "Set1") + theme(text = element_text(size=16), legend.title=element_text(size=13))
+p3 <- ggplot(df.plot3, aes(p_start, V3, size = obs.trio.cnts)) + geom_point(alpha = 0.5) + theme_bw() + labs(x = "MAF interval", y = "Estimated uncalled deletion rate", size = "Trio genotype count") + geom_hline(yintercept = est.gamma.weighted) + geom_hline(yintercept = 2e-4, color = "#377EB8") + scale_color_brewer(palette = "Set1") + theme(text = element_text(size=16), legend.title=element_text(size=13), axis.title.x = element_text(vjust = -0.1), axis.title.y = element_text(vjust = 1.7), plot.margin = grid::unit(c(4,4,4,4), units = "mm"))
 p3
-ggsave("Fig.6.all.MAF.png", width = 10, height = 6)
+ggsave("Fig.4.png", width = 10, height = 6)
 
 est.prop <- 2*est.gamma.weighted/est.error.rate.weighted
 true.prop

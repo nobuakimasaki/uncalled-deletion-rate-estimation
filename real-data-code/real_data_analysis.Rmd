@@ -269,10 +269,10 @@ pnt.SANN.long$CI.width <- pnt.SANN.long$upper - pnt.SANN.long$lower
 ```{r}
 ### Plot point estimates and CIs for all MAF intervals
 ggplot(pnt.SANN.long, aes(x = `MAF Interval`, y = log10(est.), color = Model)) + geom_point(alpha = 0.3) + geom_errorbar(aes(ymin = log10(lower), ymax = log10(upper)), alpha = 0.3) +
-  facet_wrap(~param., scales = "free", labeller = label_parsed) + theme_bw() + 
-  theme(text = element_text(size=15), axis.text.x=element_text(angle=90, hjust=1), legend.position = c(1, 0), legend.justification = c(1,0), legend.title = element_text(size=15), legend.text=element_text(size=15), legend.box.background = element_rect(color = "black"), legend.box.margin = margin(t = 1, l = 1)) + 
+  facet_wrap(~param., scales = "free", labeller = label_parsed, ncol = 2) + theme_bw() + 
+  theme(text = element_text(size=15), axis.text.x=element_text(angle=90, hjust=1), legend.position = c(1, 0), legend.justification = c(1,0), legend.title = element_text(size=15), legend.text=element_text(size=15), legend.box.background = element_rect(color = "black"), legend.box.margin = margin(t = 1, l = 1), axis.title.x = element_text(vjust = -1)) + 
   scale_color_brewer(palette = "Set1") + labs(x = "MAF interval", y = "log10(estimate)")
-ggsave("Fig.5.png", width = 12, height = 8, units = "in")
+ggsave("Fig.5.png", width = 6.5, height = 7, units = "in")
 ```
 
 ```{r}
@@ -357,7 +357,7 @@ AIC.plot$Prefers <- ifelse(AIC.plot$diff_AIC < 0, "With deletions", "Without del
 
 ### Plot difference in AIC
 ggplot(AIC.plot, aes(x = `MAF interval`, y = diff_AIC, color = Prefers)) + geom_point() + geom_hline(yintercept = 0) +
-  theme_bw() + theme(text = element_text(size=15), axis.text.x=element_text(angle=90, hjust=1)) + 
+  theme_bw() + theme(text = element_text(size=15), axis.text.x=element_text(angle=90, hjust=1), axis.title.x = element_text(vjust = -1), axis.title.y = element_text(vjust = 2)) + 
   scale_color_brewer(palette = "Set1") + labs(x = "MAF interval", y = "Difference in AIC (with - without deletions)", color = "Favored Model")
 ggsave("Fig.6.png", width = 7.5, height = 5, units = "in")
 ```
