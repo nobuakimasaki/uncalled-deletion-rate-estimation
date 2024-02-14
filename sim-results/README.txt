@@ -1,5 +1,3 @@
-This directory stores the files used to apply the model to the UK Biobank sequence data.
+This directory stores the results of fitting the model to observed trio genotypes from a specific MAF interval. Each subdirectory represents a separate MAF interval.
 
-deletion_analysis.rmd is the file used to analyze the results of fitting the model to this data.
-
-deletion_lik_functions.R contains the functions used to 
+Within each subdirectory, we have 9 files comprising the 200 runs of the simulation for each MAF interval.
