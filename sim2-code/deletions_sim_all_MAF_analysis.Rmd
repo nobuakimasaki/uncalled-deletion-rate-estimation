@@ -293,14 +293,14 @@ quantile(est.prop.boot[-1], probs = c(0.05, 0.95))
 ```{r}
 true.error.rate.weighted
 est.error.rate.weighted
-quantile(genotype.error.rate.est.weighted.boot, probs = c(0.05, 0.95))
+quantile(genotype.error.rate.est.weighted.boot[-1], probs = c(0.05, 0.95))
 
 est.gamma.weighted
-quantile(gamma.weighted.boot, probs = c(0.05, 0.95))
+quantile(gamma.weighted.boot[-1], probs = c(0.05, 0.95))
 
 true.prop
 est.prop
-quantile(est.prop.boot, probs = c(0.05, 0.95))
+quantile(est.prop.boot[-1], probs = c(0.05, 0.95))
 ```
 
 ```{r}
