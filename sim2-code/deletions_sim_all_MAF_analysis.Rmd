@@ -192,31 +192,31 @@ est.prop
 # bootstrap
 
 # observed trio counts
-resamp1 <- readRDS("res\\resamp.trios.13.1.all_MAF.sim.rds")
-resamp2 <- readRDS("res\\resamp.trios.13.2.all_MAF.sim.rds")[-1]
-resamp3 <- readRDS("res\\resamp.trios.13.3.all_MAF.sim.rds")[-1]
-resamp4 <- readRDS("res\\resamp.trios.13.4.all_MAF.sim.rds")[-1]
-resamp5 <- readRDS("res\\resamp.trios.13.5.all_MAF.sim.rds")[-1]
-resamp6 <- readRDS("res\\resamp.trios.13.6.all_MAF.sim.rds")[-1]
-resamp7 <- readRDS("res\\resamp.trios.13.7.all_MAF.sim.rds")[-1]
-resamp8 <- readRDS("res\\resamp.trios.13.8.all_MAF.sim.rds")[-1]
+resamp1 <- readRDS("..\\sim2-results\\resamp.trios.13.1.all_MAF.sim.rds")
+resamp2 <- readRDS("..\\sim2-results\\resamp.trios.13.2.all_MAF.sim.rds")[-1]
+resamp3 <- readRDS("..\\sim2-results\\resamp.trios.13.3.all_MAF.sim.rds")[-1]
+resamp4 <- readRDS("..\\sim2-results\\resamp.trios.13.4.all_MAF.sim.rds")[-1]
+resamp5 <- readRDS("..\\sim2-results\\resamp.trios.13.5.all_MAF.sim.rds")[-1]
+resamp6 <- readRDS("..\\sim2-results\\resamp.trios.13.6.all_MAF.sim.rds")[-1]
+resamp7 <- readRDS("..\\sim2-results\\resamp.trios.13.7.all_MAF.sim.rds")[-1]
+resamp8 <- readRDS("..\\sim2-results\\resamp.trios.13.8.all_MAF.sim.rds")[-1]
 
 resamp.boot <- c(resamp1, resamp2, resamp3, resamp4,
                  resamp5, resamp6, resamp7, resamp8)[1:101]
 
-res1 <- readRDS("res\\est.res.13.1.all_MAF.sim.rds")
-res2 <- readRDS("res\\est.res.13.2.all_MAF.sim.rds")[-1]
-res3 <- readRDS("res\\est.res.13.3.all_MAF.sim.rds")[-1]
-res4 <- readRDS("res\\est.res.13.4.all_MAF.sim.rds")[-1]
-res5 <- readRDS("res\\est.res.13.5.all_MAF.sim.rds")[-1]
-res6 <- readRDS("res\\est.res.13.6.all_MAF.sim.rds")[-1]
-res7 <- readRDS("res\\est.res.13.7.all_MAF.sim.rds")[-1]
-res8 <- readRDS("res\\est.res.13.8.all_MAF.sim.rds")[-1]
+res1 <- readRDS("..\\sim2-results\\est.res.13.1.all_MAF.sim.rds")
+res2 <- readRDS("..\\sim2-results\\est.res.13.2.all_MAF.sim.rds")[-1]
+res3 <- readRDS("..\\sim2-results\\est.res.13.3.all_MAF.sim.rds")[-1]
+res4 <- readRDS("..\\sim2-results\\est.res.13.4.all_MAF.sim.rds")[-1]
+res5 <- readRDS("..\\sim2-results\\est.res.13.5.all_MAF.sim.rds")[-1]
+res6 <- readRDS("..\\sim2-results\\est.res.13.6.all_MAF.sim.rds")[-1]
+res7 <- readRDS("..\\sim2-results\\est.res.13.7.all_MAF.sim.rds")[-1]
+res8 <- readRDS("..\\sim2-results\\est.res.13.8.all_MAF.sim.rds")[-1]
 
 res.boot <- c(res1, res2, res3, res4, res5, res6, res7, res8)[1:101]
 
 # observed trio counts
-sim.obs.trio.cnts.all.trios <- readRDS("res\\sim_obs_trio_cnts_all_MAF.rds")
+sim.obs.trio.cnts.all.trios <- readRDS("..\\sim2-results\\sim_obs_trio_cnts_all_MAF.rds")
 sim.obs.trio.cnts.boot <- list()
 
 for (i in 1:length(resamp.boot)) {
